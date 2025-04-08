@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace SpaceWar
 {
@@ -19,15 +18,16 @@ namespace SpaceWar
             this.WindowState = FormWindowState.Maximized;
             this.KeyDown += new KeyEventHandler(Game_KeyDown);
             this.KeyUp += new KeyEventHandler(Game_KeyUp);
-            moveSpeed = 8; // Initialize moveSpeed here
+            moveSpeed = 9; // Initialize moveSpeed here
             movetimer = new System.Windows.Forms.Timer();
-            movetimer.Interval = 15;
+            movetimer.Interval = 5;
             movetimer.Tick += new EventHandler(GameTimer_Tick);
             movetimer.Start();
             enemy_sp = new System.Windows.Forms.Timer();
-            enemy_sp.Interval = 1000;
+            enemy_sp.Interval = 3000;
             enemy_sp.Tick += new EventHandler(Enemy_Sp_Tick);
             enemy_sp.Start();
+
         }
 
         private void Game_Load(object sender, EventArgs e)
@@ -63,16 +63,31 @@ namespace SpaceWar
                 moveRight = false;
             }
         }
+
+        private void add_score(int score)
+        {
+            int f_score = Int32.Parse(lbl_score.Text) + score;
+            int len = 4 - f_score.ToString().Length;
+            string final = "";
+            for (int i = 0; i < len; i++)
+            {
+                final += "0";
+            }
+            lbl_score.Text = final + f_score.ToString();
+        }
+
         private async void MoveEnemy(PictureBox clone)
         {
             while (clone.Top < this.ClientSize.Height)
             {
-                clone.Top += 1;
-                await Task.Delay(5);
+                clone.Top += 2;
+                await Task.Delay(10);
             }
 
             this.Controls.Remove(clone);
+            //add_score(1);
             clone.Dispose();
+
         }
 
 
@@ -83,6 +98,7 @@ namespace SpaceWar
             clone.Image = enemy_1.Image;
             clone.SizeMode = enemy_1.SizeMode;
 
+            add_score(1);
             int x = rand.Next(0, this.ClientSize.Width - clone.Width);
             clone.Location = new Point(x, 0);
 
