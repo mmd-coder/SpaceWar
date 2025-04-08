@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Windows.Forms;
 
 namespace SpaceWar
@@ -11,8 +11,10 @@ namespace SpaceWar
         private System.Windows.Forms.Timer movetimer;
         private System.Windows.Forms.Timer enemy_sp;
         private Random rand = new Random();
+        
 
         public Game()
+        
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
@@ -84,6 +86,7 @@ namespace SpaceWar
                 await Task.Delay(10);
             }
 
+
             this.Controls.Remove(clone);
             //add_score(1);
             clone.Dispose();
@@ -113,6 +116,7 @@ namespace SpaceWar
             if (moveLeft && player.Left > 0)
             {
                 player.Left -= moveSpeed;
+                
             }
             if (moveRight && player.Right < this.ClientSize.Width)
             {
