@@ -11,7 +11,8 @@ namespace SpaceWar
         private System.Windows.Forms.Timer movetimer;
         private System.Windows.Forms.Timer enemy_sp;
         private Random rand = new Random();
-        
+
+        private string minab;
 
         public Game()
         
