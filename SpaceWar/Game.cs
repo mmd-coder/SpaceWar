@@ -11,7 +11,8 @@ namespace SpaceWar
         private System.Windows.Forms.Timer enemySpawnTimer;
         private Random random = new();
         private int bulletCooldown = 700;
-        private int playerHealth = 3;
+        private int playerHealth = 3; // 3 تا جان شروع میشه
+        private List<PictureBox> hearts = new List<PictureBox>(); // لیست قلب‌ها
         private bool isShootingAllowed = true;
         private PictureBox enemyClone = new();
         private List<PictureBox> enemyList = new();
@@ -33,9 +34,6 @@ namespace SpaceWar
             enemySpawnTimer.Start();
 
             InitializeExplosions();
-            player.Left = (this.ClientSize.Width - player.Width) / 2;
-            player.Top = (this.ClientSize.Height) - 145;
-            player.Anchor = AnchorStyles.None;
         }
 
         private async void StopExplosionAnimation(PictureBox explosion)
@@ -66,6 +64,33 @@ namespace SpaceWar
             }
         }
 
+        private void CreateHearts()
+        {
+            // پاک کردن قلب‌های قبلی (اگر بودند)
+            foreach (var heart in hearts)
+            {
+                Controls.Remove(heart);
+            }
+            hearts.Clear();
+
+            // ساخت 3 قلب
+            for (int i = 0; i < 3; i++)
+            {
+                PictureBox heart = new PictureBox();
+                heart.Image = Properties.Resources.full_heart;
+                heart.Size = new Size(40, 40);
+                heart.Location = new Point((this.ClientSize.Width-160) + (i * 50), 15);
+                heart.BackColor = Color.Transparent;
+                heart.SizeMode = PictureBoxSizeMode.Zoom;
+
+                Controls.Add(heart);
+                hearts.Add(heart);
+                heart.BringToFront();
+            }
+        }
+
+
+
         private void ShowExplosion(Point location)
         {
             var explosion = explosionPool.FirstOrDefault(e => !e.Visible) ?? new PictureBox();
@@ -74,9 +99,30 @@ namespace SpaceWar
             StopExplosionAnimation(explosion);
         }
 
-        private void UpdatePlayerHealth(bool increase)
+        private async void UpdatePlayerHealth(bool increase)
         {
-            playerHealth += increase ? 1 : -1;
+            if (increase)
+            {
+                hearts[playerHealth - 1].Image = Properties.Resources.full_heart;
+                playerHealth += 1;
+            }
+            else
+            {
+                hearts[playerHealth - 1].Image = Properties.Resources.empty_heart;
+                await Task.Delay(300);
+                hearts[playerHealth - 1].Image = Properties.Resources.full_heart;
+                await Task.Delay(300);
+                hearts[playerHealth - 1].Image = Properties.Resources.empty_heart;
+
+                playerHealth -= 1;
+                if (playerHealth == 0) {GameOver(); return; }
+            }
+        }
+
+        private void GameOver()
+        {
+            // -----> Game Over Codes ----->:
+
         }
 
         private void UpdateScore(int points)
@@ -138,8 +184,7 @@ namespace SpaceWar
             enemy.Location = new Point(xPosition, -90);
 
             Controls.Add(enemy);
-            player.SendToBack();
-            enemy.BringToFront();
+            enemy.SendToBack();
 
             MoveEnemy(enemy);
         }
@@ -238,6 +283,14 @@ namespace SpaceWar
             {
                 isMovingRight = false;
             }
+        }
+
+        private void Game_Load(object sender, EventArgs e)
+        {
+            CreateHearts();
+            player.Left = (this.ClientSize.Width - player.Width) / 2;
+            player.Top = (this.ClientSize.Height) - 145;
+            player.Anchor = AnchorStyles.None;
         }
     }
 }

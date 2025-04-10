@@ -112,7 +112,7 @@ namespace SpaceWar
             Controls.Add(player);
             Name = "Game";
             Text = "Space War Game";
-            //Load += Game_Load;
+            Load += Game_Load;
             KeyDown += Game_KeyDown;
             KeyUp += Game_KeyUp;
             ((System.ComponentModel.ISupportInitialize)player).EndInit();
