@@ -1,57 +1,230 @@
-using System.Numerics;
-using System.Windows.Forms;
+﻿using SpaceWar.Properties;
 
 namespace SpaceWar
 {
     public partial class Game : Form
     {
-        private bool moveLeft;
-        private bool moveRight;
-        private int moveSpeed;
-        private System.Windows.Forms.Timer movetimer;
-        private System.Windows.Forms.Timer enemy_sp;
-        private Random rand = new Random();
-
-        private string minab;
+        private bool isMovingLeft;
+        private bool isMovingRight;
+        private int playerSpeed;
+        private System.Windows.Forms.Timer gameTimer;
+        private System.Windows.Forms.Timer enemySpawnTimer;
+        private Random random = new();
+        private int bulletCooldown = 700;
+        private int playerHealth = 3;
+        private bool isShootingAllowed = true;
+        private PictureBox enemyClone = new();
+        private List<PictureBox> enemyList = new();
+        private List<PictureBox> bulletList = new();
+        private List<PictureBox> explosionPool = new();
 
         public Game()
-        
         {
             InitializeComponent();
-            this.WindowState = FormWindowState.Maximized;
-            this.KeyDown += new KeyEventHandler(Game_KeyDown);
-            this.KeyUp += new KeyEventHandler(Game_KeyUp);
-            moveSpeed = 9; // Initialize moveSpeed here
-            movetimer = new System.Windows.Forms.Timer();
-            movetimer.Interval = 5;
-            movetimer.Tick += new EventHandler(GameTimer_Tick);
-            movetimer.Start();
-            enemy_sp = new System.Windows.Forms.Timer();
-            enemy_sp.Interval = 3000;
-            enemy_sp.Tick += new EventHandler(Enemy_Sp_Tick);
-            enemy_sp.Start();
+            WindowState = FormWindowState.Maximized;
+            playerSpeed = 9;
 
-        }
+            gameTimer = new System.Windows.Forms.Timer { Interval = 5 };
+            gameTimer.Tick += GameTimer_Tick;
+            gameTimer.Start();
 
-        private void Game_Load(object sender, EventArgs e)
-        {
+            enemySpawnTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+            enemySpawnTimer.Tick += SpawnEnemy;
+            enemySpawnTimer.Start();
+
+            InitializeExplosions();
             player.Left = (this.ClientSize.Width - player.Width) / 2;
             player.Top = (this.ClientSize.Height) - 145;
-            player.BackColor = Color.Transparent;
-            enemy_1.BackColor = Color.Transparent;
-
             player.Anchor = AnchorStyles.None;
         }
 
-        private void Game_KeyDown(object sender, KeyEventArgs e)
+        private async void StopExplosionAnimation(PictureBox explosion)
         {
+            var timer = new System.Windows.Forms.Timer { Interval = 800 };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                explosion.Visible = false;
+            };
+            await Task.Delay(1);
+            timer.Start();
+        }
+
+        private void InitializeExplosions()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                var explosion = new PictureBox
+                {
+                    Size = explode.Size,
+                    Image = Resources.explode,
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Visible = false
+                };
+                explosionPool.Add(explosion);
+                Controls.Add(explosion);
+            }
+        }
+
+        private void ShowExplosion(Point location)
+        {
+            var explosion = explosionPool.FirstOrDefault(e => !e.Visible) ?? new PictureBox();
+            explosion.Location = location;
+            explosion.Visible = true;
+            StopExplosionAnimation(explosion);
+        }
+
+        private void UpdatePlayerHealth(bool increase)
+        {
+            playerHealth += increase ? 1 : -1;
+        }
+
+        private void UpdateScore(int points)
+        {
+            int currentScore = int.Parse(lbl_score.Text) + points;
+            lbl_score.Text = currentScore.ToString("D4");
+        }
+
+        private async void MoveEnemy(PictureBox enemy)
+        {
+            while (enemy.Top < ClientSize.Height)
+            {
+                enemy.Top += 2;
+
+                for (int i = enemyList.Count - 1; i >= 0; i--)
+                {
+                    var playerBounds = player.Bounds;
+                    playerBounds.Y += 10;
+
+                    if (playerBounds.IntersectsWith(enemyList[i].Bounds))
+                    {
+                        UpdatePlayerHealth(false);
+                        player.Image = Resources.fighterplane_50;
+
+                        var resetTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+                        resetTimer.Tick += (s, e) =>
+                        {
+                            player.Image = Resources.fighterplane;
+                            resetTimer.Stop();
+                        };
+                        resetTimer.Start();
+
+                        Controls.Remove(enemyList[i]);
+                        enemyList.RemoveAt(i);
+                        break;
+                    }
+                }
+                await Task.Delay(1);
+            }
+
+            Controls.Remove(enemy);
+            enemy.Dispose();
+            enemyList.Remove(enemy);
+        }
+
+        private void SpawnEnemy(object sender, EventArgs e)
+        {
+            var enemy = new PictureBox
+            {
+                Size = enemy_1.Size,
+                Image = enemy_1.Image,
+                SizeMode = enemy_1.SizeMode
+            };
+
+            enemyList.Add(enemy);
+            UpdateScore(1);
+
+            int xPosition = random.Next(0, ClientSize.Width - enemy.Width);
+            enemy.Location = new Point(xPosition, -90);
+
+            Controls.Add(enemy);
+            player.SendToBack();
+            enemy.BringToFront();
+
+            MoveEnemy(enemy);
+        }
+
+        private async void GameTimer_Tick(object sender, EventArgs e)
+        {
+            if (isMovingLeft && player.Left > 0)
+            {
+                player.Left -= playerSpeed;
+            }
+            if (isMovingRight && player.Right < ClientSize.Width)
+            {
+                player.Left += playerSpeed;
+            }
+        }
+
+        private async void MoveBullet(PictureBox bullet)
+        {
+            while (bullet.Top > 0)
+            {
+                bullet.Top -= 2;
+
+                for (int i = bulletList.Count - 1; i >= 0; i--)
+                {
+                    for (int j = enemyList.Count - 1; j >= 0; j--)
+                    {
+                        var bulletBounds = bulletList[i].Bounds;
+                        bulletBounds.Y += 15;
+
+                        if (bulletBounds.IntersectsWith(enemyList[j].Bounds))
+                        {
+                            UpdateScore(2);
+                            ShowExplosion(new Point(bulletList[i].Location.X - 10, bulletList[i].Location.Y));
+
+                            Controls.Remove(bulletList[i]);
+                            Controls.Remove(enemyList[j]);
+                            bulletList.RemoveAt(i);
+                            enemyList.RemoveAt(j);
+                            break;
+                        }
+                    }
+                }
+                await Task.Delay(1);
+            }
+
+            Controls.Remove(bullet);
+            bulletList.Remove(bullet);
+            bullet.Dispose();
+        }
+
+        private async void Game_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                await Task.Delay(1);
+                if (!isShootingAllowed) return;
+
+                var bullet = new PictureBox
+                {
+                    Size = bullet_1.Size,
+                    Image = bullet_1.Image,
+                    BackColor = bullet_1.BackColor,
+                    SizeMode = bullet_1.SizeMode
+                };
+
+                bulletList.Add(bullet);
+                bullet.Location = new Point(player.Location.X + 50, player.Location.Y - 60);
+
+                Controls.Add(bullet);
+                bullet.BringToFront();
+
+                MoveBullet(bullet);
+
+                isShootingAllowed = false;
+                await Task.Delay(bulletCooldown);
+                isShootingAllowed = true;
+            }
+
             if (e.KeyCode == Keys.Left)
             {
-                moveLeft = true;
+                isMovingLeft = true;
             }
             else if (e.KeyCode == Keys.Right)
             {
-                moveRight = true;
+                isMovingRight = true;
             }
         }
 
@@ -59,69 +232,11 @@ namespace SpaceWar
         {
             if (e.KeyCode == Keys.Left)
             {
-                moveLeft = false;
+                isMovingLeft = false;
             }
             else if (e.KeyCode == Keys.Right)
             {
-                moveRight = false;
-            }
-        }
-
-        private void add_score(int score)
-        {
-            int f_score = Int32.Parse(lbl_score.Text) + score;
-            int len = 4 - f_score.ToString().Length;
-            string final = "";
-            for (int i = 0; i < len; i++)
-            {
-                final += "0";
-            }
-            lbl_score.Text = final + f_score.ToString();
-        }
-
-        private async void MoveEnemy(PictureBox clone)
-        {
-            while (clone.Top < this.ClientSize.Height)
-            {
-                clone.Top += 2;
-                await Task.Delay(10);
-            }
-
-
-            this.Controls.Remove(clone);
-            //add_score(1);
-            clone.Dispose();
-
-        }
-
-
-        private void Enemy_Sp_Tick(object sender, EventArgs e)
-        {
-            PictureBox clone = new PictureBox();
-            clone.Size = enemy_1.Size;
-            clone.Image = enemy_1.Image;
-            clone.SizeMode = enemy_1.SizeMode;
-
-            add_score(1);
-            int x = rand.Next(0, this.ClientSize.Width - clone.Width);
-            clone.Location = new Point(x, 0);
-
-            this.Controls.Add(clone);
-            player.SendToBack();
-            clone.BringToFront();
-            MoveEnemy(clone);
-        }
-
-        private void GameTimer_Tick(object sender, EventArgs e)
-        {
-            if (moveLeft && player.Left > 0)
-            {
-                player.Left -= moveSpeed;
-                
-            }
-            if (moveRight && player.Right < this.ClientSize.Width)
-            {
-                player.Left += moveSpeed;
+                isMovingRight = false;
             }
         }
     }

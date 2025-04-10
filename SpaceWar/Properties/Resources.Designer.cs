@@ -73,9 +73,39 @@ namespace SpaceWar.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap bullet_1 {
+            get {
+                object obj = ResourceManager.GetObject("bullet_1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap explode {
+            get {
+                object obj = ResourceManager.GetObject("explode", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap fighterplane {
             get {
                 object obj = ResourceManager.GetObject("fighterplane", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap fighterplane_50 {
+            get {
+                object obj = ResourceManager.GetObject("fighterplane-50", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
