@@ -10,9 +10,9 @@ namespace SpaceWar
         private System.Windows.Forms.Timer gameTimer;
         private System.Windows.Forms.Timer enemySpawnTimer;
         private Random random = new();
-        private int bulletCooldown = 700;
-        private int playerHealth = 3; // 3 تا جان شروع میشه
-        private List<PictureBox> hearts = new List<PictureBox>(); // لیست قلب‌ها
+        private int bulletCooldown = 600;
+        private int playerHealth = 3;
+        private List<PictureBox> hearts = new List<PictureBox>();
         private bool isShootingAllowed = true;
         private PictureBox enemyClone = new();
         private List<PictureBox> enemyList = new();
@@ -29,7 +29,7 @@ namespace SpaceWar
             gameTimer.Tick += GameTimer_Tick;
             gameTimer.Start();
 
-            enemySpawnTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+            enemySpawnTimer = new System.Windows.Forms.Timer { Interval = 3000 };
             enemySpawnTimer.Tick += SpawnEnemy;
             enemySpawnTimer.Start();
 
@@ -66,14 +66,12 @@ namespace SpaceWar
 
         private void CreateHearts()
         {
-            // پاک کردن قلب‌های قبلی (اگر بودند)
             foreach (var heart in hearts)
             {
                 Controls.Remove(heart);
             }
             hearts.Clear();
 
-            // ساخت 3 قلب
             for (int i = 0; i < 3; i++)
             {
                 PictureBox heart = new PictureBox();
