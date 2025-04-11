@@ -36,6 +36,9 @@ namespace SpaceWar
             lbl_score = new Label();
             bullet_1 = new PictureBox();
             explode = new PictureBox();
+            lbl_gameover = new Label();
+            btn_restart = new Button();
+            btn_exit = new Button();
             ((System.ComponentModel.ISupportInitialize)player).BeginInit();
             ((System.ComponentModel.ISupportInitialize)enemy_1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)bullet_1).BeginInit();
@@ -69,10 +72,10 @@ namespace SpaceWar
             // lbl_score
             // 
             lbl_score.AutoSize = true;
-            lbl_score.Font = new Font("Brush Script MT", 25.2F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            lbl_score.Font = new Font("Brush Script MT", 30F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             lbl_score.Location = new Point(12, 9);
             lbl_score.Name = "lbl_score";
-            lbl_score.Size = new Size(98, 51);
+            lbl_score.Size = new Size(119, 61);
             lbl_score.TabIndex = 2;
             lbl_score.Text = "0000";
             // 
@@ -99,16 +102,54 @@ namespace SpaceWar
             explode.TabStop = false;
             explode.Visible = false;
             // 
+            // lbl_gameover
+            // 
+            lbl_gameover.AutoSize = true;
+            lbl_gameover.BackColor = Color.Transparent;
+            lbl_gameover.Font = new Font("Segoe UI Semilight", 55F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lbl_gameover.ForeColor = SystemColors.ActiveCaptionText;
+            lbl_gameover.Location = new Point(1359, 260);
+            lbl_gameover.Name = "lbl_gameover";
+            lbl_gameover.Size = new Size(525, 123);
+            lbl_gameover.TabIndex = 5;
+            lbl_gameover.Text = "Game Over!";
+            lbl_gameover.Visible = false;
+            // 
+            // btn_restart
+            // 
+            btn_restart.Location = new Point(820, 427);
+            btn_restart.Name = "btn_restart";
+            btn_restart.Size = new Size(103, 75);
+            btn_restart.TabIndex = 6;
+            btn_restart.Text = "Restart";
+            btn_restart.UseVisualStyleBackColor = true;
+            btn_restart.Visible = false;
+            btn_restart.Click += btn_restart_Click;
+            // 
+            // btn_exit
+            // 
+            btn_exit.Location = new Point(1163, 427);
+            btn_exit.Name = "btn_exit";
+            btn_exit.Size = new Size(103, 75);
+            btn_exit.TabIndex = 7;
+            btn_exit.Text = "Exit Game";
+            btn_exit.UseVisualStyleBackColor = true;
+            btn_exit.Visible = false;
+            btn_exit.Click += btn_exit_Click;
+            // 
             // Game
             // 
             AutoScaleDimensions = new SizeF(9F, 18F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(192, 255, 255);
-            ClientSize = new Size(1354, 748);
+            BackColor = Color.LightSkyBlue;
+            ClientSize = new Size(1337, 748);
+            Controls.Add(lbl_score);
+            Controls.Add(btn_exit);
+            Controls.Add(btn_restart);
+            Controls.Add(lbl_gameover);
             Controls.Add(explode);
             Controls.Add(bullet_1);
             Controls.Add(enemy_1);
-            Controls.Add(lbl_score);
             Controls.Add(player);
             Name = "Game";
             Text = "Space War Game";
@@ -130,5 +171,8 @@ namespace SpaceWar
         private Label lbl_score;
         private PictureBox bullet_1;
         private PictureBox explode;
+        private Label lbl_gameover;
+        private Button btn_restart;
+        private Button btn_exit;
     }
 }
