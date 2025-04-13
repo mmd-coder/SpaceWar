@@ -81,5 +81,23 @@ public class Class1
             enemyList.RemoveAt(j);
         }
     }
+
+    private void fire()
+    {
+        SoundPlayer player = new SoundPlayer("C:\\Users\\MAC\\Downloads\\exl.wav");
+        player.Play();
+    }
+
+    private void loseheart()
+    {
+        SoundPlayer player = new SoundPlayer("C:\\Users\\MAC\\Downloads\\heart.wav");
+        player.Play();
+    }
+
+    private void healthgain()
+    {
+        SoundPlayer player = new SoundPlayer("C:\\Users\\MAC\\Downloads\\heartt.wav");
+        player.Play();
+    }
 }
 }
